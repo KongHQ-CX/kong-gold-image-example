@@ -1,0 +1,106 @@
+{
+    "family": "konnect-data-plane",
+    "containerDefinitions": [
+        {
+            "name": "proxy",
+            "image": "012345678901.dkr.ecr.eu-west-1.amazonaws.com/kong-gateway:3.5.0.3",
+            "cpu": 2048,
+            "memory": 1024,
+            "memoryReservation": 1024,
+            "portMappings": [
+                {
+                    "name": "http",
+                    "containerPort": 8000,
+                    "hostPort": 8000,
+                    "protocol": "tcp",
+                    "appProtocol": "http"
+                },
+                {
+                    "name": "https",
+                    "containerPort": 8443,
+                    "hostPort": 8443,
+                    "protocol": "tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "KONG_ROLE",
+                    "value": "data_plane"
+                },
+                {
+                    "name": "KONG_CLUSTER_CONTROL_PLANE",
+                    "value": "abc1234567.eu.cp0.konghq.com:443"
+                },
+                {
+                    "name": "KONG_CLUSTER_TELEMETRY_ENDPOINT",
+                    "value": "abc1234567.eu.tp0.konghq.com:443"
+                },
+                {
+                    "name": "KONG_CLUSTER_CERT",
+                    "value": "-----BEGIN CERTIFICATE-----\nREDACTED\n-----END CERTIFICATE-----"
+                },
+                {
+                    "name": "KONG_CLUSTER_CERT_KEY",
+                    "value": "-----BEGIN PRIVATE KEY-----\nREDACTED\n-----END PRIVATE KEY-----"
+                },
+                {
+                    "name": "KONG_CLUSTER_MTLS",
+                    "value": "pki"
+                },
+                {
+                    "name": "KONG_DATABASE",
+                    "value": "off"
+                },
+                {
+                    "name": "KONG_CLUSTER_TELEMETRY_SERVER_NAME",
+                    "value": "f2a4820938.eu.tp0.konghq.com"
+                },
+                {
+                    "name": "KONG_KONNECT_MODE",
+                    "value": "on"
+                },
+                {
+                    "name": "KONG_PROXY_LISTEN",
+                    "value": "0.0.0.0:8000,0.0.0.0:8443 http2 ssl"
+                },
+                {
+                    "name": "KONG_CLUSTER_SERVER_NAME",
+                    "value": "abc1234567.eu.cp0.konghq.com"
+                },
+                {
+                    "name": "KONG_LUA_SSL_TRUSTED_CERTIFICATE",
+                    "value": "system,-----BEGIN CA CERTIFICATE-----\nREDACTED\n-----END CA CERTIFICATE-----"
+                },
+                {
+                    "name": "KONG_VITALS",
+                    "value": "off"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "readonlyRootFilesystem": false,
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "/ecs/konnect-data-plane",
+                    "awslogs-region": "eu-west-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ],
+    "executionRoleArn": "arn:aws:iam::012345678901:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "2048",
+    "memory": "4096",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    }
+}

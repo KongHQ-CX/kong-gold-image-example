@@ -1,0 +1,58 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - "main"
+
+env:
+  KONG_MAJOR: 3
+  KONG_MINOR: 5
+  KONG_PATCH: 0
+  KONG_SUBPATCH: 3
+  OS_FAMILY: ubuntu
+  OS_VERSION: jammy
+
+jobs:
+  docker:
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Checkout Kong/kong Public
+        uses: actions/checkout@v4
+        with:
+          repository: kong/kong
+          ref: "tags/${{ env.KONG_MAJOR }}.${{ env.KONG_MINOR }}.${{ env.KONG_PATCH }}"
+      - name: Login to ECR
+        run: |
+          aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 412431539555.dkr.ecr.eu-west-1.amazonaws.com
+
+      - name: Download Kong
+        run: |
+          curl -L -o kong.amd64.deb https://download.konghq.com/gateway-${KONG_MAJOR}.x-${OS_FAMILY}-${OS_VERSION}/pool/all/k/kong-enterprise-edition/kong-enterprise-edition_${KONG_MAJOR}.${KONG_MINOR}.${KONG_PATCH}.${KONG_SUBPATCH}_amd64.deb
+          curl -L -o kong.arm64.deb https://download.konghq.com/gateway-${KONG_MAJOR}.x-${OS_FAMILY}-${OS_VERSION}/pool/all/k/kong-enterprise-edition/kong-enterprise-edition_${KONG_MAJOR}.${KONG_MINOR}.${KONG_PATCH}.${KONG_SUBPATCH}_arm64.deb
+        shell: bash
+      - name: Build and Push to ECR
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./build/dockerfiles/deb.Dockerfile
+          # platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
+          push: true
+          tags: "412431539555.dkr.ecr.eu-west-1.amazonaws.com/kong-gateway:${{ env.KONG_MAJOR }}.${{ env.KONG_MINOR }}.${{ env.KONG_PATCH }}.${{ env.KONG_SUBPATCH }}"
+          build-args: |
+            KONG_VERSION=${{ env.KONG_MAJOR }}.${{ env.KONG_MINOR }}.${{ env.KONG_PATCH }}
+            KONG_BASE_IMAGE=ubuntu:22.04
+
+      - name: Build and Push to ECR
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./build/dockerfiles/deb.Dockerfile
+          # platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
+          push: true
+          tags: "012345678901.dkr.ecr.eu-west-1.amazonaws.com/kong-gateway:${{ env.KONG_MAJOR }}.${{ env.KONG_MINOR }}.${{ env.KONG_PATCH }}.${{ env.KONG_SUBPATCH }}"
+          build-args: |
+            KONG_VERSION=${{ env.KONG_MAJOR }}.${{ env.KONG_MINOR }}.${{ env.KONG_PATCH }}
+            KONG_BASE_IMAGE=ubuntu:22.04
