@@ -1,6 +1,5 @@
 FROM redhat/ubi8-minimal
 
-ARG EE_PORTS
 ARG RHEL_VERSION=8
 ENV RHEL_VERSION $RHEL_VERSION
 RUN set -ex; \
