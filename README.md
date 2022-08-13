@@ -1,4 +1,4 @@
-# kong-gold-image-example
+# Kong Gold Image Example
 Example repository for building a hardened UBI8-minimal image, and then installing Kong on top, in two layers.
 
 ## Building
