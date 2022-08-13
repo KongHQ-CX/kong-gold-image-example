@@ -1,0 +1,42 @@
+FROM kong/base
+
+
+MAINTAINER Kong
+ARG KONG_VERSION=2.8.0
+ENV KONG_VERSION ${KONG_VERSION}
+ARG KONG_PACKAGE=2.8.0.0
+ENV KONG_PACKAGE ${KONG_PACKAGE}
+ARG KONG_SHA256="6252ad85fec3dfcd9e44055389b2f983f6a676306b0cf5be1e9fe0f78f49fd8d"
+LABEL name="Kong" \
+      vendor="Kong" \
+      version="$KONG_VERSION" \
+      release="1" \
+      url="https://konghq.com" \
+      summary="Next-Generation API Platform for Modern Architectures" \
+      description="Next-Generation API Platform for Modern Architectures"
+ARG EE_PORTS
+
+USER root
+RUN adduser kong
+
+# Install Kong Enterprise
+RUN curl -L https://download.konghq.com/gateway-2.x-rhel-${RHEL_VERSION}/Packages/k/kong-enterprise-edition-${KONG_PACKAGE}.rhel${RHEL_VERSION}.noarch.rpm -o /tmp/kong-enterprise-edition-${KONG_PACKAGE}.rhel${RHEL_VERSION}.noarch.rpm
+RUN set -ex; \
+    rpm -i /tmp/kong-enterprise-edition-${KONG_PACKAGE}.rhel${RHEL_VERSION}.noarch.rpm \
+    && rm -f /tmp/kong-enterprise-edition-${KONG_PACKAGE}.rhel${RHEL_VERSION}.noarch.rpm \
+    && chown kong:0 /usr/local/bin/kong \
+    && chown -R kong:0 /usr/local/kong \
+    && ln -s /usr/local/openresty/bin/resty /usr/local/bin/resty \
+    && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
+    && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
+    && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx
+
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x docker-entrypoint.sh
+USER kong
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+EXPOSE 8000 8443 8001 8444 $EE_PORTS
+STOPSIGNAL SIGQUIT
+HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD kong health
+CMD ["kong", "docker-start"]

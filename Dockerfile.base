@@ -1,0 +1,12 @@
+FROM redhat/ubi8-minimal
+
+ARG EE_PORTS
+ARG RHEL_VERSION=8
+ENV RHEL_VERSION $RHEL_VERSION
+RUN set -ex; \
+    microdnf update -y \
+    && microdnf install -y unzip shadow-utils hostname perl perl-Time-HiRes zlib-devel gzip tar ed \
+    && microdnf clean all && \
+    adduser base
+
+USER base
