@@ -1,11 +1,11 @@
 FROM kong/base
 
 
-MAINTAINER Kong
+LABEL key="Kong"
 ARG EE_PORTS
 ARG KONG_VERSION=2.8.1
 ENV KONG_VERSION ${KONG_VERSION}
-ARG KONG_PACKAGE=2.8.1.3
+ARG KONG_PACKAGE=3.1.1.1
 ENV KONG_PACKAGE ${KONG_PACKAGE}
 ARG KONG_SHA256="6252ad85fec3dfcd9e44055389b2f983f6a676306b0cf5be1e9fe0f78f49fd8d"
 LABEL name="Kong" \
@@ -21,10 +21,10 @@ USER root
 RUN adduser kong
 
 # Install Kong Enterprise
-RUN curl -L https://download.konghq.com/gateway-2.x-rhel-${RHEL_VERSION}/Packages/k/kong-enterprise-edition-${KONG_PACKAGE}.rhel${RHEL_VERSION}.noarch.rpm -o /tmp/kong-enterprise-edition-${KONG_PACKAGE}.rhel${RHEL_VERSION}.noarch.rpm
+RUN curl -L https://download.konghq.com/gateway-3.x-rhel-${RHEL_VERSION}/Packages/k/kong-enterprise-edition-${KONG_PACKAGE}.rhel${RHEL_VERSION}.6.amd64.rpm -o /tmp/kong-enterprise-edition-${KONG_PACKAGE}.rhel${RHEL_VERSION}.amd64.rpm
 RUN set -ex; \
-    rpm -i /tmp/kong-enterprise-edition-${KONG_PACKAGE}.rhel${RHEL_VERSION}.noarch.rpm \
-    && rm -f /tmp/kong-enterprise-edition-${KONG_PACKAGE}.rhel${RHEL_VERSION}.noarch.rpm \
+    rpm -i /tmp/kong-enterprise-edition-${KONG_PACKAGE}.rhel${RHEL_VERSION}.amd64.rpm \
+    && rm -f /tmp/kong-enterprise-edition-${KONG_PACKAGE}.rhel${RHEL_VERSION}.amd64.rpm \
     && chown kong:0 /usr/local/bin/kong \
     && chown -R kong:0 /usr/local/kong \
     && ln -s /usr/local/openresty/bin/resty /usr/local/bin/resty \
